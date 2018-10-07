@@ -1,16 +1,16 @@
-main: main.cpp Matrix.h
+ main: main.cpp Matrix.h
 	g++ main.cpp -o main
 
-compare: compare.cpp
+_comp: compare.cpp
 	g++ compare.cpp -o _comp
 
-genMatrix: genMatrix.cpp
+_getMatrix: genMatrix.cpp
 	g++ genMatrix.cpp -o _getMatrix
 
-printMtr: printMtr.cpp
+_printMtr: printMtr.cpp
 	g++ printMtr.cpp -o _printMtr
 
-test: main compare
+test: main _comp
 	./main A B C 0
 	./_comp C C0
 	./main A B C 1
@@ -24,8 +24,7 @@ test: main compare
 	./main A B C 5
 	./_comp C C0
 
-report: genMatrix main plotScript.sh
+report: _getMatrix main plotScript.sh
 	./_getMatrix d 700 700 _rA
 	./_getMatrix d 700 700 _rB
 	./plotScript.sh
-
