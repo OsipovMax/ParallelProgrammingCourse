@@ -27,4 +27,4 @@ test: main _comp
 report: _getMatrix main plotScript.sh
 	./_getMatrix d 700 700 _rA
 	./_getMatrix d 700 700 _rB
-	./plotScript.sh
+	python3 ScriptPy.py
