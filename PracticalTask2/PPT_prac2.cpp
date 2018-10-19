@@ -7,7 +7,7 @@
 #include <string>
 
 #define NUM_EVENTS 2
-const int cachesize = 4096;
+const int cachesize = 65536;
 
 using namespace std;
 template <typename T>
@@ -37,15 +37,15 @@ Matrix<T> mulMatrix(const Matrix<T> &m1, const Matrix<T> &m2, const int mode, in
 	if (f == 0) {
 		start_cycles=PAPI_get_real_cyc();
 		if( PAPI_create_eventset(&EventSet) != PAPI_OK){
-			cout << "error -1 "<< endl;
+			cout << "create error "<< endl;
 			exit(1);
 		}
 		if (PAPI_add_events(EventSet,Events,NUM_EVENTS)!= PAPI_OK){
-			cout << "error-2 " <<endl;
+			cout << "add error " <<endl;
 			exit(1);
 		}
 		if (PAPI_start(EventSet) != PAPI_OK) {
-			cout << "error-3" <<endl;
+			cout << "start error" <<endl;
 			exit(1);
 		}
 	}
@@ -54,7 +54,7 @@ Matrix<T> mulMatrix(const Matrix<T> &m1, const Matrix<T> &m2, const int mode, in
 	
 	if ( f == 1) {
 		if (( rt = PAPI_flops( &ireal_time, &iproc_time, &iflpops, &imflops )) < PAPI_OK){
-			printf("error__");
+			printf("flops error");
 			exit(1);
 		}
 	}
@@ -100,8 +100,7 @@ Matrix<T> mulMatrix(const Matrix<T> &m1, const Matrix<T> &m2, const int mode, in
 	
 	if (mode == 2) {
 		int lib = PAPI_library_init(PAPI_VER_CURRENT);
-		if (lib == 0) 
-			cout << "lib(";
+		
 		const PAPI_hw_info_t *info = PAPI_get_hardware_info();
 
 		int blocksize = sqrt(cachesize/(3*sizeof(float)));
@@ -144,7 +143,6 @@ Matrix<T> mulMatrix(const Matrix<T> &m1, const Matrix<T> &m2, const int mode, in
 		fout_<< m1.getRows() << " " << mflops<< endl;
 		fout_.close();
 
-		//cout << "Real_time :" << real_time << " Proc_time :" << proc_time  <<" Total flpops : " << flpops << " MFLOPS : " << mflops <<endl;
 	}
 
 	if (f == 0) {
@@ -163,22 +161,9 @@ Matrix<T> mulMatrix(const Matrix<T> &m1, const Matrix<T> &m2, const int mode, in
 		ofstream fcycles (Cycles,ios::app);
 		fcycles << m1.getRows() << " " << end_cycles - start_cycles<< endl;
 		fcycles.close();
-		//cout << "L1_DCM = " << values[0] << endl;
-		//cout << "L2_DCM = " << values[1] << endl;
+
 	}
 
-	//end_cycles = PAPI_get_real_usec();
-	
-	//printf("L1_DCM = %lld L2_DCM = %lld \n", values[0],values[1]);
-	//printf("Real_time: %f Proc_time: %f Total flpops: %lld MFLOPS: %f\n,
-		//real_time,proc_time,flpops,mflops);
-
-	//cout << "Real_time :" << real_time << " Proc_time :" << proc_time 
-	//<<" Total flpops : " << flpops << " MFLOPS : " << mflops <<endl; 
-	
-	//printf("Wallclock cycles: %lld\n", end_cycles - start_cycles);
-	//cout << "Time_result = " << end_cycles - start_cycles<<endl;
-	
 	return resMtr;
 }
 
@@ -218,13 +203,11 @@ int main(int argc, char *argv[])
 	std::string fName1, fName2, fResult;
 	unsigned int res_time;
 
-	/*fName1 = "mtr1";
-	fName2 = "mtr2";*/
+
 	flag = atoi(argv[5]);
 	
 	if (( retval = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT){
 		cout << "ret: " <<retval << "\n curr ver: " << PAPI_VER_CURRENT<<endl;
-		//fprint (stderr, "PAPI_library_init\n");
 	}
 	if (argc != 6) {
 		std::cout << "invalid number of arguments" << std::endl;
@@ -249,13 +232,12 @@ int main(int argc, char *argv[])
 	modeVal = atoi(argv[4]);
 
 	if (type_val == 'f') {
-		//std::cout << "lets f"<< std::endl;
 		Matrix<float> Lmatr;
 		Lmatr = binReader<float>(fName1);
 		Matrix<float> Rmatr;
 		Rmatr = binReader<float>(fName2);
 		Matrix<float> Ematr;
-		Ematr = mulMatrix<float>(Lmatr, Rmatr, modeVal,flag/*, res_time*/);
+		Ematr = mulMatrix<float>(Lmatr, Rmatr, modeVal,flag);
 		std::ofstream fout(argv[3], std::ios::binary | std::ios::out);
 		if (fout.is_open()) {
 			float temp_val;
@@ -269,7 +251,7 @@ int main(int argc, char *argv[])
 			for (int i = 0; i < newRow; ++i) {
 				for (int j = 0; j < newColmn; ++j) {
 					temp_val = Ematr.mtr[i][j];
-					fout.write((char*)&temp_val, sizeof(float)); //*n*m
+					fout.write((char*)&temp_val, sizeof(float)); 
 				}
 			}
 		}

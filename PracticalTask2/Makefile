@@ -1,5 +1,5 @@
 PPT_prac: PPT_prac2.cpp Matrix.h
-	g++ -std=c++11 -I/usr/include - O3 PPT_prac2.cpp /usr/lib64/libpapi.so -o PPT_prac
+	g++ -std=c++11 -I/usr/include -O3 PPT_prac2.cpp /usr/lib64/libpapi.so -o PPT_prac
 
 compare: compare.cpp
 	g++ compare.cpp -o compare
