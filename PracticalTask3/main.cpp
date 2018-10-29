@@ -44,8 +44,6 @@ int main(int argc, char **argv)
 	temp_rval = (rank + 1)*rval / numproces;
 
 	vector<int> mass(temp_rval - temp_lval + 1, 1);
-	mass[0] = 0;
-	mass[1] = 0;
 
 	time_begin = MPI_Wtime();
 
@@ -63,16 +61,17 @@ int main(int argc, char **argv)
 			if (temp_val == 0)
 				temp_val = i;
 			for (int j = i - temp_val; j <= temp_rval - temp_lval; j += i) {
-					mass[j] = 0;
+					if (temp_lval + j >= sqrt_rval +1) {
+						mass[j] = 0;
+					}
+					else {
+						mass[j] = sieve[temp_lval + j];
+					}
 			}
 		}
 	}
-	for (int i = 2; i<= sqrt_rval; i++){
-		if (sieve[i] == 1) {
-			mass[i] = 1;
-		}
-	}
-
+	if (rank == 0)
+		mass[0] = 0;
 
 	vector<int>().swap(sieve);
 
