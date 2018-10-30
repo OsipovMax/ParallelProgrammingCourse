@@ -1,4 +1,3 @@
-//#include <mpi.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <iostream>
@@ -38,28 +37,27 @@ void *sieve_function (void *arg){
 	int NumThread = atoi(tinfo->argv_string[4]);
 	lval = atoi(tinfo->argv_string[1]);
 	rval = atoi(tinfo->argv_string[2]);
-	
-	//if (lval > rval) {
-		//cout << "left value less than right value" << endl;
-		//exit(1);
-	//}
 
 	sqrt_rval = sqrt(rval);
 
 	vector<int> sieve(sqrt_rval + 1, 1);
 	sieve[0] = 0;
 	sieve[1] = 0;
+	
 
-	temp_lval = tinfo->thread_num * rval / NumThread + 1;
-	temp_rval = (tinfo->thread_num + 1)*rval / NumThread;
-	//pthread_mutex_lock(&lock);
-	//cout << "thread_lval:"<< tinfo->thread_num<< "---" << temp_lval<<endl;
-	//cout << "thread_rval:"<< tinfo->thread_num<< "---" << temp_rval << endl;
-	//pthread_mutex_unlock(&lock);
+	temp_lval = tinfo->thread_num * (rval-lval) / NumThread + 1+ lval;
+	temp_rval = (tinfo->thread_num + 1)*(rval-lval) / NumThread + lval ;
+	if (tinfo-> thread_num == 0)
+		temp_lval = temp_lval - 1;
+	/*pthread_mutex_lock(&lock);
+	cout << tinfo->thread_num  << ":" << temp_lval << endl;
+	cout << tinfo->thread_num  << ":" << temp_rval << endl;
+	pthread_mutex_unlock(&lock);*/
+
 	vector<int> mass(temp_rval - temp_lval + 1, 1);
-	//mass[0] = 0;
 
-	//time_begin = MPI_Wtime();
+
+
 	time_begin = omp_get_wtime();
 	for (int i = 2; i <= sqrt_rval; ++i) {
 		if (sieve[i] == 1)
@@ -84,7 +82,7 @@ void *sieve_function (void *arg){
 			}
 		}
 	}
-	if (tinfo->thread_num == 0)
+	if (temp_lval == 1)
 		mass[0]=0;
 	vector<int>().swap(sieve);
 	for (int i = 0; i <= temp_rval - temp_lval; ++i) {
@@ -93,9 +91,15 @@ void *sieve_function (void *arg){
 		}
 	}
 
-	//time_end = MPI_Wtime() - time_begin;
-	time_end = omp_get_wtime() - time_begin;
 	
+	time_end = omp_get_wtime() - time_begin;
+
+	/*pthread_mutex_lock(&lock);
+	for (int i = 0; i <sieve.size() ; ++i)
+		cout << sieve[i] << "  " ;
+	cout << endl;
+	pthread_mutex_unlock(&lock);*/
+
 	pthread_mutex_lock(&lock);
 	ofstream fout(tinfo->argv_string[3], ios::app);
 	for (int i = 0; i < sieve.size(); ++i) {
@@ -116,7 +120,7 @@ void *sieve_function (void *arg){
 int main(int argc, char **argv)
 {
 	int counter = 0;
-	double counter_time;
+	double counter_time = 0.0;
 	int NumThread = atoi(argv[4]);
 	thread_info *tdInfo = new thread_info[NumThread];
 	void *rtStruct;
@@ -133,7 +137,6 @@ int main(int argc, char **argv)
 		counter_time+=res_struct->res_time;
 	}
 	cout << "number of primes = " << counter << endl;
-	//cout << "result time = " << counter_time << endl;
 	ofstream fout_("result", ios::app);
 		fout_ << NumThread << " " << counter_time << endl;
 	delete tdInfo;
