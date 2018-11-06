@@ -22,6 +22,7 @@ struct thread_info {
 struct result_struct {
 	int res;
 	double res_time;
+	//double max_time;
 };
 
 void *sieve_function (void *arg){
@@ -121,6 +122,7 @@ int main(int argc, char **argv)
 {
 	int counter = 0;
 	double counter_time = 0.0;
+	double max_time = 0.0;
 	int NumThread = atoi(argv[4]);
 	thread_info *tdInfo = new thread_info[NumThread];
 	void *rtStruct;
@@ -135,10 +137,13 @@ int main(int argc, char **argv)
 		res_struct =(result_struct*)rtStruct;
 		counter+=res_struct->res;
 		counter_time+=res_struct->res_time;
+		if (res_struct->res > max_time ){
+			max_time = res_struct->res_time;
+		}
 	}
 	cout << "number of primes = " << counter << endl;
 	ofstream fout_("result", ios::app);
-		fout_ << NumThread << " " << counter_time << endl;
+		fout_ << NumThread << " " << counter_time << " " << max_time <<endl;
 	delete tdInfo;
 	delete res_struct;
 	return 0;
