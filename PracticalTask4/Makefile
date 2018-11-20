@@ -13,13 +13,6 @@ genMap: genMap.cpp
 printMtr: printMtr.cpp
 	g++ -O3 printMtr.cpp -o printMtr
 
-testCpplint: genMatrix main_cppLint
-	./genMatrix d 4 4 Alint
-	sleep 5
-	./genMatrix d 4 1 Blint
-	mpisubmit.bg -n 1 -w 00:05:00 -m SMP main_cppLint -- Alint Blint C
-	sleep 30
-	mpisubmit.bg -n 2 -w 00:05:00 -m SMP main_cppLint -- Alint Blint C
 
 testRow: genMatrix main
 	./genMatrix d 4 3 Ar
