@@ -1,0 +1,13 @@
+# @ job_type = bluegene
+# @ class = large
+# @ output = $(jobid).out
+# @ error = $(jobid).err
+# @ wall_clock_limit = 00:05:00
+# @ bg_size = 64
+# @ queue
+
+/bgsys/drivers/ppcfloor/bin/mpirun \
+	-exe /bigfs/homes_edu/edu-cmc-sqi16/edu-cmc-sqi16-16/PPT_5/main \
+	-args "A2048 B2048 C 4" \
+	-mapfile /bigfs/homes_edu/edu-cmc-sqi16/edu-cmc-sqi16-16/PPT_5/myMap.map \
+	-mode smp
